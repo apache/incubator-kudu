@@ -120,14 +120,14 @@ public class ITKuduTableInputFormat extends BaseKuduTest {
         List<KuduPredicate> predicates) throws IOException, InterruptedException {
     KuduTableInputFormat input = new KuduTableInputFormat();
     Configuration conf = new Configuration();
-    conf.set(KuduTableInputFormat.MASTER_ADDRESSES_KEY, getMasterAddresses());
-    conf.set(KuduTableInputFormat.INPUT_TABLE_KEY, TABLE_NAME);
+    conf.set(KuduMapReduceConstants.MASTER_ADDRESSES_KEY, getMasterAddresses());
+    conf.set(KuduMapReduceConstants.INPUT_TABLE_KEY, TABLE_NAME);
     if (columnProjection != null) {
-      conf.set(KuduTableInputFormat.COLUMN_PROJECTION_KEY, columnProjection);
+      conf.set(KuduMapReduceConstants.COLUMN_PROJECTION_KEY, columnProjection);
     }
     if (predicates != null) {
       String encodedPredicates = KuduTableMapReduceUtil.base64EncodePredicates(predicates);
-      conf.set(KuduTableInputFormat.ENCODED_PREDICATES_KEY, encodedPredicates);
+      conf.set(KuduMapReduceConstants.ENCODED_PREDICATES_KEY, encodedPredicates);
     }
     input.setConf(conf);
     List<InputSplit> splits = input.getSplits(null);

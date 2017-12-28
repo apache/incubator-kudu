@@ -68,24 +68,6 @@ public class KuduTableOutputFormat extends OutputFormat<NullWritable,Operation>
 
   private static final Logger LOG = LoggerFactory.getLogger(KuduTableOutputFormat.class);
 
-  /** Job parameter that specifies the output table. */
-  static final String OUTPUT_TABLE_KEY = "kudu.mapreduce.output.table";
-
-  /** Job parameter that specifies where the masters are */
-  static final String MASTER_ADDRESSES_KEY = "kudu.mapreduce.master.addresses";
-
-  /** Job parameter that specifies how long we wait for operations to complete */
-  static final String OPERATION_TIMEOUT_MS_KEY = "kudu.mapreduce.operation.timeout.ms";
-
-  /** Number of rows that are buffered before flushing to the tablet server */
-  static final String BUFFER_ROW_COUNT_KEY = "kudu.mapreduce.buffer.row.count";
-
-  /**
-   * Job parameter that specifies which key is to be used to reach the KuduTableOutputFormat
-   * belonging to the caller
-   */
-  static final String MULTITON_KEY = "kudu.mapreduce.multitonkey";
-
   /**
    * This multiton is used so that the tasks using this output format/record writer can find
    * their KuduTable without having a direct dependency on this class,
@@ -111,9 +93,9 @@ public class KuduTableOutputFormat extends OutputFormat<NullWritable,Operation>
   public void setConf(Configuration entries) {
     this.conf = new Configuration(entries);
 
-    String masterAddress = this.conf.get(MASTER_ADDRESSES_KEY);
-    String tableName = this.conf.get(OUTPUT_TABLE_KEY);
-    this.operationTimeoutMs = this.conf.getLong(OPERATION_TIMEOUT_MS_KEY,
+    String masterAddress = this.conf.get(KuduMapReduceConstants.MASTER_ADDRESSES_KEY);
+    String tableName = this.conf.get(KuduMapReduceConstants.OUTPUT_TABLE_KEY);
+    this.operationTimeoutMs = this.conf.getLong(KuduMapReduceConstants.OPERATION_TIMEOUT_MS_KEY,
         AsyncKuduClient.DEFAULT_OPERATION_TIMEOUT_MS);
 
     this.client = new KuduClient.KuduClientBuilder(masterAddress)
@@ -129,12 +111,12 @@ public class KuduTableOutputFormat extends OutputFormat<NullWritable,Operation>
     }
     this.session = client.newSession();
     this.session.setFlushMode(AsyncKuduSession.FlushMode.AUTO_FLUSH_BACKGROUND);
-    this.session.setMutationBufferSpace(this.conf.getInt(BUFFER_ROW_COUNT_KEY, 1000));
+    this.session.setMutationBufferSpace(this.conf.getInt(KuduMapReduceConstants.BUFFER_ROW_COUNT_KEY, KuduMapReduceConstants.DEFAULT_BUFFER_ROW_COUNT_KEY));
     this.session.setIgnoreAllDuplicateRows(true);
     String multitonKey = String.valueOf(Thread.currentThread().getId());
     assert MULTITON.get(multitonKey) == null;
     MULTITON.put(multitonKey, this);
-    entries.set(MULTITON_KEY, multitonKey);
+    entries.set(KuduMapReduceConstants.MULTITON_KEY, multitonKey);
   }
 
   private void shutdownClient() throws IOException {

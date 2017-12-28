@@ -161,9 +161,9 @@ public class KuduTableMapReduceUtil {
       job.setOutputValueClass(Operation.class);
 
       Configuration conf = job.getConfiguration();
-      conf.set(KuduTableOutputFormat.MASTER_ADDRESSES_KEY, masterAddresses);
-      conf.set(KuduTableOutputFormat.OUTPUT_TABLE_KEY, table);
-      conf.setLong(KuduTableOutputFormat.OPERATION_TIMEOUT_MS_KEY, operationTimeoutMs);
+      conf.set(KuduMapReduceConstants.MASTER_ADDRESSES_KEY, masterAddresses);
+      conf.set(KuduMapReduceConstants.OUTPUT_TABLE_KEY, table);
+      conf.setLong(KuduMapReduceConstants.OPERATION_TIMEOUT_MS_KEY, operationTimeoutMs);
       if (addDependencies) {
         addDependencyJars(job);
       }
@@ -230,17 +230,17 @@ public class KuduTableMapReduceUtil {
 
       Configuration conf = job.getConfiguration();
 
-      conf.set(KuduTableInputFormat.MASTER_ADDRESSES_KEY, masterAddresses);
-      conf.set(KuduTableInputFormat.INPUT_TABLE_KEY, table);
-      conf.setLong(KuduTableInputFormat.OPERATION_TIMEOUT_MS_KEY, operationTimeoutMs);
-      conf.setBoolean(KuduTableInputFormat.SCAN_CACHE_BLOCKS, cacheBlocks);
-      conf.setBoolean(KuduTableInputFormat.FAULT_TOLERANT_SCAN, isFaultTolerant);
+      conf.set(KuduMapReduceConstants.MASTER_ADDRESSES_KEY, masterAddresses);
+      conf.set(KuduMapReduceConstants.INPUT_TABLE_KEY, table);
+      conf.setLong(KuduMapReduceConstants.OPERATION_TIMEOUT_MS_KEY, operationTimeoutMs);
+      conf.setBoolean(KuduMapReduceConstants.SCAN_CACHE_BLOCKS, cacheBlocks);
+      conf.setBoolean(KuduMapReduceConstants.FAULT_TOLERANT_SCAN, isFaultTolerant);
 
       if (columnProjection != null) {
-        conf.set(KuduTableInputFormat.COLUMN_PROJECTION_KEY, columnProjection);
+        conf.set(KuduMapReduceConstants.COLUMN_PROJECTION_KEY, columnProjection);
       }
 
-      conf.set(KuduTableInputFormat.ENCODED_PREDICATES_KEY, base64EncodePredicates(predicates));
+      conf.set(KuduMapReduceConstants.ENCODED_PREDICATES_KEY, base64EncodePredicates(predicates));
 
       if (addDependencies) {
         addDependencyJars(job);
@@ -403,7 +403,7 @@ public class KuduTableMapReduceUtil {
    */
   @SuppressWarnings("rawtypes")
   public static KuduTable getTableFromContext(TaskInputOutputContext context) {
-    String multitonKey = context.getConfiguration().get(KuduTableOutputFormat.MULTITON_KEY);
+    String multitonKey = context.getConfiguration().get(KuduMapReduceConstants.MULTITON_KEY);
     return KuduTableOutputFormat.getKuduTable(multitonKey);
   }
 

@@ -82,41 +82,6 @@ public class KuduTableInputFormat extends InputFormat<NullWritable, RowResult>
 
   private static final Logger LOG = LoggerFactory.getLogger(KuduTableInputFormat.class);
 
-  /** Job parameter that specifies the input table. */
-  static final String INPUT_TABLE_KEY = "kudu.mapreduce.input.table";
-
-  /** Job parameter that specifies if the scanner should cache blocks or not (default: false). */
-  static final String SCAN_CACHE_BLOCKS = "kudu.mapreduce.input.scan.cache.blocks";
-
-  /**
-   * Job parameter that specifies if the scanner should be fault tolerant
-   * or not (default: false).
-   */
-  static final String FAULT_TOLERANT_SCAN = "kudu.mapreduce.input.fault.tolerant.scan";
-
-  /** Job parameter that specifies where the masters are. */
-  static final String MASTER_ADDRESSES_KEY = "kudu.mapreduce.master.address";
-
-  /** Job parameter that specifies how long we wait for operations to complete (default: 10s). */
-  static final String OPERATION_TIMEOUT_MS_KEY = "kudu.mapreduce.operation.timeout.ms";
-
-  /** Job parameter that specifies the address for the name server. */
-  static final String NAME_SERVER_KEY = "kudu.mapreduce.name.server";
-
-  /** Job parameter that specifies the encoded column predicates (may be empty). */
-  static final String ENCODED_PREDICATES_KEY =
-      "kudu.mapreduce.encoded.predicates";
-
-  /**
-   * Job parameter that specifies the column projection as a comma-separated list of column names.
-   *
-   * Not specifying this at all (i.e. setting to null) or setting to the special string
-   * '*' means to project all columns.
-   *
-   * Specifying the empty string means to project no columns (i.e just count the rows).
-   */
-  static final String COLUMN_PROJECTION_KEY = "kudu.mapreduce.column.projection";
-
   /**
    * The reverse DNS lookup cache mapping: address from Kudu => hostname for Hadoop. This cache is
    * used in order to not do DNS lookups multiple times for each tablet server.
@@ -212,17 +177,17 @@ public class KuduTableInputFormat extends InputFormat<NullWritable, RowResult>
   public void setConf(Configuration entries) {
     this.conf = new Configuration(entries);
 
-    String tableName = conf.get(INPUT_TABLE_KEY);
-    String masterAddresses = conf.get(MASTER_ADDRESSES_KEY);
-    this.operationTimeoutMs = conf.getLong(OPERATION_TIMEOUT_MS_KEY,
+    String tableName = conf.get(KuduMapReduceConstants.INPUT_TABLE_KEY);
+    String masterAddresses = conf.get(KuduMapReduceConstants.MASTER_ADDRESSES_KEY);
+    this.operationTimeoutMs = conf.getLong(KuduMapReduceConstants.OPERATION_TIMEOUT_MS_KEY,
                                            AsyncKuduClient.DEFAULT_OPERATION_TIMEOUT_MS);
     this.client = new KuduClient.KuduClientBuilder(masterAddresses)
                                 .defaultOperationTimeoutMs(operationTimeoutMs)
                                 .build();
     KuduTableMapReduceUtil.importCredentialsFromCurrentSubject(client);
-    this.nameServer = conf.get(NAME_SERVER_KEY);
-    this.cacheBlocks = conf.getBoolean(SCAN_CACHE_BLOCKS, false);
-    this.isFaultTolerant = conf.getBoolean(FAULT_TOLERANT_SCAN, false);
+    this.nameServer = conf.get(KuduMapReduceConstants.NAME_SERVER_KEY);
+    this.cacheBlocks = conf.getBoolean(KuduMapReduceConstants.SCAN_CACHE_BLOCKS, false);
+    this.isFaultTolerant = conf.getBoolean(KuduMapReduceConstants.FAULT_TOLERANT_SCAN, false);
 
     try {
       this.table = client.openTable(tableName);
@@ -232,7 +197,7 @@ public class KuduTableInputFormat extends InputFormat<NullWritable, RowResult>
           "master address= " + masterAddresses, ex);
     }
 
-    String projectionConfig = conf.get(COLUMN_PROJECTION_KEY);
+    String projectionConfig = conf.get(KuduMapReduceConstants.COLUMN_PROJECTION_KEY);
     if (projectionConfig == null || projectionConfig.equals("*")) {
       this.projectedCols = null; // project the whole table
     } else if ("".equals(projectionConfig)) {
@@ -253,7 +218,7 @@ public class KuduTableInputFormat extends InputFormat<NullWritable, RowResult>
     this.predicates = new ArrayList<>();
     try {
       InputStream is =
-          new ByteArrayInputStream(Base64.decodeBase64(conf.get(ENCODED_PREDICATES_KEY, "")));
+          new ByteArrayInputStream(Base64.decodeBase64(conf.get(KuduMapReduceConstants.ENCODED_PREDICATES_KEY, "")));
       while (is.available() > 0) {
         this.predicates.add(KuduPredicate.fromPB(table.getSchema(),
                                                  Common.ColumnPredicatePB.parseDelimitedFrom(is)));

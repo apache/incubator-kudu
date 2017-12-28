@@ -48,11 +48,11 @@ public class ITKuduTableOutputFormat extends BaseKuduTest {
 
     KuduTableOutputFormat output = new KuduTableOutputFormat();
     Configuration conf = new Configuration();
-    conf.set(KuduTableOutputFormat.MASTER_ADDRESSES_KEY, getMasterAddresses());
-    conf.set(KuduTableOutputFormat.OUTPUT_TABLE_KEY, TABLE_NAME);
+    conf.set(KuduMapReduceConstants.MASTER_ADDRESSES_KEY, getMasterAddresses());
+    conf.set(KuduMapReduceConstants.OUTPUT_TABLE_KEY, TABLE_NAME);
     output.setConf(conf);
 
-    String multitonKey = conf.get(KuduTableOutputFormat.MULTITON_KEY);
+    String multitonKey = conf.get(KuduMapReduceConstants.MULTITON_KEY);
     KuduTable table = KuduTableOutputFormat.getKuduTable(multitonKey);
     assertNotNull(table);
 
