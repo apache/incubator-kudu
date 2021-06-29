@@ -310,7 +310,7 @@ partitioning are shown below.
 
 .`PARTITION BY RANGE`
 You can specify range partitions for one or more primary key columns.
-Range partitioning in Kudu allows splitting a table based based on
+Range partitioning in Kudu allows splitting a table based on
 specific values or ranges of values of the chosen partition keys. This allows
 you to balance parallelism in writes with scan efficiency.
 
