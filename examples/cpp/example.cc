@@ -27,6 +27,7 @@
 #include "kudu/client/write_op.h"
 #include "kudu/common/partial_row.h"
 #include "kudu/util/monotime.h"
+#include "kudu/util/logging.h"
 
 using kudu::client::KuduClient;
 using kudu::client::KuduClientBuilder;
@@ -264,6 +265,7 @@ int main(int argc, char* argv[]) {
       kudu::client::GetAllVersionInfo();
 
   // This is to install and automatically un-install custom logging callback.
+  kudu::InitGoogleLoggingSafeBasic(argv[0]);
   LogCallbackHelper log_cb_helper;
 
   if (argc < 2) {
