@@ -62,7 +62,7 @@ class TestScanToken(TestScanBase):
     def test_scan_token_serde_threaded_with_named_projection(self):
         """
         Creates scan tokens, serializes them, delivers them to new
-        threads then executes them in parallel with seperate clients.
+        threads then executes them in parallel with separate clients.
         """
         builder = self.table.scan_token_builder()
         builder.set_projected_column_names(['key', 'string_val']).set_fault_tolerant()
